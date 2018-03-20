@@ -1,4 +1,4 @@
-Window modell web app.
+Window modell web app. on web pages.
 
 First use Me-Tools load on the document, where you use this code.
 
@@ -28,3 +28,6 @@ Accessable elements on the win object.
 name+[_head] :          id of head DIV element.
 name+[_content] :       id of the window body DIV.
 name+[_container] :     id of the body container DIV.
+
+
+This app usage as an Loadable Module on web pages.
