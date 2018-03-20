@@ -1,0 +1,491 @@
+﻿
+var w_data={
+	w_count:0,
+	w_bcount:0,
+};
+
+var winDescriptor=function(){
+
+	///////////// stream variable field/////////////////////////////////
+	
+	winDescriptor.prototype.name='window_';
+	winDescriptor.prototype.width=400;
+	winDescriptor.prototype.height=200;
+	winDescriptor.prototype.indentLeft=10;
+	winDescriptor.prototype.indentTop=40;
+	winDescriptor.prototype.resizeable=true;
+	winDescriptor.prototype.moveable=true;	
+	winDescriptor.prototype.defaultButtons=false;	
+
+	winDescriptor.w_count=0;
+	winDescriptor.noEditor={};
+	winDescriptor.zoomed={};
+	winDescriptor.itemclassnames={
+		container: 	'_container',
+		head:		'_head',
+		content:	'_content',
+		
+	};
+
+	var headsize=30;
+	var vbound=4;
+	var that=null;
+	var w_container=null;
+	var w_head=null;
+	var w_content=null;
+	var zoomed_items={};
+	
+	////////////////////////////////////////////////////////////////////
+	///////////// delegated handlers to perform ////////////////////////
+
+		function setup(p){
+			that={};
+			for(n in winDescriptor.prototype){
+				if(typeof p[n]=='undefined'){
+					that[n]=winDescriptor.prototype[n];	
+					
+				}
+				else{
+					that[n]=p[n];
+				}
+			}
+		};
+		
+		function win_modell(){
+			var W={
+				div_0:{
+					component:that.name+winDescriptor.itemclassnames.head,
+					id:that.name+winDescriptor.itemclassnames.head,
+					class:'windiow'+winDescriptor.itemclassnames.head,
+					style:'left:'+that.IndentLeft+'px;top:'+that.indentTop+'px',
+					ztab:'zoomh'+w_data.w_count,
+					move:0,
+					div_1:{
+						component:that.name+'_title',
+						text:that.name,
+						id:that.name+'_window',
+						class:'window_title',
+					},
+				},
+				div_1:{
+					resize:0,
+					component:that.name+winDescriptor.itemclassnames.container,
+					id:that.name+winDescriptor.itemclassnames.container,
+					class:'windiow'+winDescriptor.itemclassnames.container,
+					style:'left:'+that.IndentLeft+'px;top:'+(that.indentTop+headsize)+'px',
+					ztab:'zoom'+w_data.w_count,
+					div_2:{
+						component:that.name+winDescriptor.itemclassnames.content,
+						id:that.name+winDescriptor.itemclassnames.content,
+						class:'window'+winDescriptor.itemclassnames.content,
+					},
+				},
+			};
+			 w_data.w_count+=1;
+			Craft(W);
+			w_container=window[that.name+winDescriptor.itemclassnames.container];
+			w_head=window[that.name+winDescriptor.itemclassnames.head];
+			w_content=window[that.name+winDescriptor.itemclassnames.content];
+		};
+		
+		winDescriptor.button_classes=function(){
+			this.small=null;
+			this.open=null;
+			this.close=null;
+			this.basic=function(){
+				var B={
+					div_3:{
+						id:that.name+'_defaultcontrols'+w_data.w_bcount,
+						class:'defaultcontrols',
+						button_0:{
+							id:that.name+'_open'+w_data.w_bcount,
+							class:'openbutton',
+							component:'open_'+that.name+w_data.w_bcount,
+							
+						},
+						button_1:{
+							id:that.name+'_small'+w_data.w_bcount,
+							class:'smallbutton',
+							component:'small_'+that.name+w_data.w_bcount,
+						},
+						button_2:{
+							id:that.name+'_close'+w_data.w_bcount,
+							class:'closebutton',
+							component:'close_'+that.name+w_data.w_bcount,
+						},
+					},
+					button_4:{
+							id:that.name+'_scale'+w_data.w_bcount,
+							class:'scalebutton',
+							component:'scale_'+that.name+w_data.w_bcount,
+					},
+				};
+				Craft(B);
+				this.open=window['open_'+that.name+w_data.w_bcount];
+				this.small=window['small_'+that.name+w_data.w_bcount];
+				this.close=window['close_'+that.name+w_data.w_bcount];
+				this.scale=window['scale_'+that.name+w_data.w_bcount];
+				Pattern(
+					that.name+winDescriptor.itemclassnames.head+'>'+that.name+'_defaultcontrols'+w_data.w_bcount,
+					that.name+winDescriptor.itemclassnames.container+'>'+that.name+'_scale'+w_data.w_bcount
+				);
+				w_data.w_bcount+=1;
+			}
+		};
+		
+		(function(){
+			loadModul('./theme/originmode.css');
+		})();
+		
+	//////////////////////////////////////////////////////////////////
+	///////// controllers enrol //////////////////////////////////////
+	
+	winDescriptor.controllers=function(model){
+		var buttons=new winDescriptor.button_classes();
+		var own = this;
+		var heading=model.head;
+		var wcontainer=model.container;
+		
+		function ishandled(me){
+			if(me && me instanceof Function){
+				me();
+			}
+		};
+		
+		var pointerdetect=function(ev){
+			return {x:ev.clientX,y:ev.clientY};
+		}
+		
+		this.w_stageorient=function(insight){
+			if(insight==1){
+				
+				heading.shielded('hide');
+				wcontainer.shielded('hide');
+			}
+			else if(insight==0){
+				heading.shielded('restore');
+				wcontainer.shielded('restore');
+			}
+			if(insight==2){
+				wcontainer.shielded('hide');
+			}
+			else if(insight==3){
+				wcontainer.shielded('restore');
+			}
+		}
+		
+		this.corebuttons=function(mme,cme,bme){
+			buttons.basic();
+			this.w_head=w_head;
+			this.w_container=w_container;
+			var own = this;
+			
+			buttons.small.member.onclick=function(){
+				own.w_stageorient(2);
+			}
+			buttons.open.member.onclick=function(){
+				own.w_stageorient(3);
+			}
+			buttons.close.member.onclick=function(){
+				own.w_stageorient(1);
+				ishandled(cme);				
+			}
+		};
+		
+		this.outterbuttons=function(external_btn,ome){
+			if(external_btn){
+				try{
+					Use(external_btn).onclick=function(){
+						own.w_stageorient(0);
+						ishandled(ome);
+					}
+				}
+				catch(e){
+					throw new Error('invalid button id!');
+				}
+			}
+		};
+		
+		this.movewindow=function(enabled){
+			var innerLeft=0;
+			var innerTop=0;
+			var mX=0;
+			var mY=0;
+			this.w_head=w_head;
+			this.w_container=w_container;
+			var own = this;
+			
+			var zooming=function(t){
+				zoomed_items[t.attributes.ztab.value]=[t,own.w_container.member];
+				for(var n in zoomed_items){
+					if(zoomed_items[n][0].parentNode){
+						if(zoomed_items[n][0].attributes.ztab.value!=t.attributes.ztab.value){
+							zoomed_items[n][0].style.zIndex=0;
+							zoomed_items[n][1].style.zIndex=0;
+						};
+					};
+				};
+			};
+			
+			heading.member.onmousedown=function(e){
+				mX=pointerdetect(e).x;
+				mY=pointerdetect(e).y;
+				innerLeft=heading.member.offsetLeft;
+				innerTop=heading.member.offsetTop;
+				this.attributes.move.nodeValue=1;
+				this.style.zIndex=1;
+				wcontainer.member.style.zIndex=1;
+				zooming(this);
+				
+			};
+			
+			heading.member.onmouseup=function(e){
+				this.attributes.move.nodeValue=0;
+			};
+			heading.member.onmousemove=function(e){
+				if(this.attributes.move.nodeValue=='1' && enabled){	
+					var mouseV=pointerdetect(e).x;
+					var mouseH=pointerdetect(e).y;
+					heading.member.style.left=(mouseV-(mX-innerLeft))+'px';
+					heading.member.style.top=(mouseH-(mY-innerTop))+'px';
+					wcontainer.member.style.left=heading.member.style.left;
+					wcontainer.member.style.top=(parseInt(heading.member.style.top)+headsize)+'px';
+				}
+			};
+			
+		};
+		this.resizeframe=function(q){
+			this.w_head=w_head;
+			this.w_container=w_container;
+			var own = this;
+			var ev=0;
+			var offsetW=null;
+			var offsetH=null;
+			var offleft=null;
+			var offtop=null;
+			var scaleon=false;
+			function sizingon(ev){
+				wcontainer.member.style.width=(offsetW+(pointerdetect(ev).x-(offsetW+offleft-10)))+'px'; 
+				wcontainer.member.style.height=(offsetH+(pointerdetect(ev).y-(offsetH+offtop+20)))+'px';
+				heading.member.style.width=parseInt(wcontainer.member.style.width)+vbound+'px';
+				wcontainer.member.style.minWidth=that.width+'px';
+				wcontainer.member.style.minHeight=that.height+'px';
+				heading.member.style.minWidth=(that.width+vbound)+'px';
+			}
+			if(q){
+				//own.w_container.member.style.resize='both';
+				buttons.scale.shielded('restore');
+				buttons.scale.member.onmousedown=function(){
+					scaleon=true;
+					offsetW=heading.member.offsetWidth;
+					offleft=heading.member.offsetLeft;
+					offsetH=heading.member.offsetHeight;
+					offtop=heading.member.offsetTop;
+				}
+				buttons.scale.member.onmousemove=function(e){
+					if(scaleon){
+						sizingon(e);
+					};
+				}
+				buttons.scale.member.onmouseup=function(){
+					scaleon=false;
+				};
+				wcontainer.member.onmouseup=function(){
+					scaleon=false;
+				};
+			}
+			if(!q){
+				buttons.scale.shielded('hide');
+			};
+		};
+		this.screening=function(q){ // setup as new controller
+			this.w_head=w_head;
+			this.w_container=w_container;
+			var own = this;
+			var p_width=null;
+			var	p_height=null;
+			
+			function projector_fscreen(){
+				p_width=wcontainer.member.style.width;
+				p_height=wcontainer.member.style.height;
+				var fv=window.innerWidth;
+				var fh=screen.height;
+				heading.member.style.left='0px';
+				heading.member.style.top='0px';
+				wcontainer.member.style.left='0px';
+				wcontainer.member.style.top=(headsize)+'px';
+				
+				wcontainer.member.style.width=(fv-20)+'px';
+				wcontainer.member.style.height=(fh)+'px';
+				heading.member.style.width=(fv-20)+'px';
+			}
+			
+			function projector_minscreen(){
+				wcontainer.member.style.width= p_width;
+				wcontainer.member.style.height=p_height;
+				heading.member.style.width=p_width;
+			}
+			
+			if(q=='screen'){
+				projector_fscreen();
+				}
+			else if(q=='default'){
+				projector_minscreen();
+			}
+			
+		}
+	}
+	
+	///////////////////////////////////////////////////////////////////
+	////////// applyed window modells /////////////////////////////////
+	
+	var window0=function(props){
+			if(props instanceof Object){
+				this.name=props.name;
+				this.width=props.width;
+				this.height=props.height;
+				this.count=w_data.w_count;
+				this.resizeable=props.resizeable;
+				this.moveable=props.moveable;
+				this.anchor=props.anchor;
+				this.fscreen='default';
+				this.handle=props.handle;
+				this.openme=props.openme;
+				this.closeme=props.closeme;
+			}
+			
+			setup(this);
+			win_modell();
+			
+			this.head=w_head;
+			this.container=w_container;
+			this.content=w_content;
+
+			var win_obj={head:this.head,container:this.container}
+			var platecontrol=new winDescriptor.controllers(win_obj);
+			
+			platecontrol.corebuttons(this.closeme); //IE error
+			platecontrol.outterbuttons(this.anchor,this.openme);
+			
+			w_head.member.style.width=(this.width+vbound)+'px';
+			w_container.member.style.width=this.width+'px';
+			w_container.member.style.height=this.height+'px';
+			
+			platecontrol.movewindow(that.moveable);
+			platecontrol.resizeframe(that.resizeable);
+			
+			platecontrol.w_stageorient(true);
+			
+			this.Positionable=function(quest){
+				this.moveable=quest;
+				platecontrol.movewindow(this.moveable);
+			};	
+			this.Sizing=function(quest){
+				this.resizeable=quest;
+				platecontrol.resizeframe(this.resizeable);
+			};
+			this.Screen=function(quest){
+				this.fscreen=quest;
+				platecontrol.screening(this.fscreen);
+			};
+			this.setAnchor=function(path){
+				this.anchor=path;
+				platecontrol.outterbuttons(this.anchor,this.openme);
+			};
+			this.setWeights=function(w,h){
+				this.width=w;
+				this.height=h;
+				this.head.member.style.width=(this.width+vbound)+'px';
+				this.container.member.style.width=this.width+'px';
+				this.container.member.style.height=this.height+'px';
+			};
+			this.getBlockName=function(){
+				return this.name;
+			}
+			this.getWeights=function(){
+				return[this.width,this.height];
+			}
+			this.getAnchor=function(){
+				return this.anchor
+			};
+	};
+	
+	window0.prototype.projector=function(){
+		var p_stat=0;
+		this.fixwin=true;
+		
+		this.FixedWin=function(quest){
+			this.fixwin=quest;
+			if(typeof(quest)!='undefined'){
+				that.Positionable(quest);
+			}
+		};
+		
+		var that=this;
+		
+		w_head.member.ondblclick=function(){
+			if(p_stat<1){
+				that.Screen('screen')
+				that.FixedWin(false);
+			}
+			if(p_stat==1){
+				that.Screen('default')
+				that.FixedWin(true);
+				p_stat=-1;
+			}
+			p_stat++;
+		}	
+	};
+	
+	////////// performed window types /////////////////////////////////
+	
+	winDescriptor.prototype.windowType={
+		windowframe0:window["PlateWindow"]=function(props){
+			var uint=new window0(props);
+			if(props.type=='Projector'){
+				uint.projector();
+			}
+			return uint;
+		},
+		windowframe1:window['ProjectorWindow']=function(props){
+		
+			/*var uint=new window0(props);
+			uint.projector();
+		
+			if(props instanceof Object){
+				this.fixwin=true;
+			}
+			this.prototype=new window0(props);
+			var p_stat=0;
+			var that=this;
+			
+			this.FixedWin=function(quest){
+				this.fixwin=quest;
+				if(typeof(quest)!='undefined'){
+					that.prototype.Positionable(quest);
+				}
+			};
+			
+			w_head.member.ondblclick=function(){
+				if(p_stat<1){
+					that.prototype.Screen('screen')
+					that.prototype.FixedWin(false);
+				}
+				if(p_stat==1){
+					that.prototype.Screen('default')
+					that.prototype.FixedWin(true);
+					p_stat=-1;
+				}
+				p_stat++;
+			}*/
+			//new window0(props);
+		},
+	}	
+};
+
+winDescriptor.prototype.Instance={
+	noEditor:this['Instance'] = (
+		function(){
+			new winDescriptor();
+	})(),
+}
