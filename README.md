@@ -21,6 +21,11 @@ openme,
 closeme,
 smallme,
 
+The window object types:
+
+projector, and default is plate.
+
+
 this keys are defined as functions that referenced to default control buttons on a window object.
 
 Accessable elements on the win object.
